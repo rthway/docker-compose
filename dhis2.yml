@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  dhis2:
+    image: dhis2/dhis2-web:stable
+    container_name: dhis2-web
+    environment:
+      - DHIS2_HOME=/dhis2
+      - DHIS2_DATABASE_HOST=db
+      - DHIS2_DATABASE_PORT=5432
+      - DHIS2_DATABASE_NAME=dhis2
+      - DHIS2_DATABASE_USER=dhis2
+      - DHIS2_DATABASE_PASSWORD=dhis2
+    volumes:
+      - dhis2_data:/dhis2
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - dhis2-network
+
+  db:
+    image: postgres:13
+    container_name: dhis2-db
+    environment:
+      - POSTGRES_USER=dhis2
+      - POSTGRES_PASSWORD=dhis2
+      - POSTGRES_DB=dhis2
+    volumes:
+      - dhis2_db_data:/var/lib/postgresql/data
+    networks:
+      - dhis2-network
+
+  dhis2-backend:
+    image: dhis2/dhis2-backend:stable
+    container_name: dhis2-backend
+    environment:
+      - DHIS2_HOME=/dhis2
+      - DHIS2_DATABASE_HOST=db
+      - DHIS2_DATABASE_PORT=5432
+      - DHIS2_DATABASE_NAME=dhis2
+      - DHIS2_DATABASE_USER=dhis2
+      - DHIS2_DATABASE_PASSWORD=dhis2
+    volumes:
+      - dhis2_backend_data:/dhis2
+    networks:
+      - dhis2-network
+
+volumes:
+  dhis2_data:
+  dhis2_db_data:
+  dhis2_backend_data:
+
+networks:
+  dhis2-network:
+    driver: bridge
